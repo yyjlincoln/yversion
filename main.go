@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 	"yversion/logging"
 	"yversion/version"
@@ -29,11 +30,18 @@ func main() {
 }
 
 func getRoot(w http.ResponseWriter, r *http.Request) {
-	file, err := os.Open("static/index.html")
+	execLocation := os.Args[0]
+	currentDirectory, err := GetParentDirectory(execLocation)
+	if err != nil {
+		panic(err)
+	}
+
+	file, err := os.Open(fmt.Sprintf("%v%s%v%s%v", currentDirectory, string(os.PathSeparator), "static", string(os.PathSeparator), "index.html"))
 	if err != nil {
 		logging.Errorf("Open: %v\n", err)
 		return
 	}
+
 	http.ServeContent(w, r, "index.html", time.Now(), file)
 }
 
@@ -53,4 +61,33 @@ func ltsVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(versionSpecString)
+}
+
+func GetParentDirectory(path string) (string, error) {
+	// Remove trailing "/"
+	if path == "" {
+		return "", fmt.Errorf("empty path")
+	}
+	if path[len(path)-1] == '/' {
+		path = path[:len(path)-1]
+	}
+
+	sep := strings.Split(path, fmt.Sprintf("%c", os.PathSeparator))
+	if len(sep) == 1 {
+		return "", fmt.Errorf("no parent directory is available")
+	}
+	newPath := ""
+	sepLast := len(sep) - 1
+	for i, v := range sep {
+		if i != sepLast {
+			newPath += v
+			if i != sepLast-1 {
+				newPath += string(os.PathSeparator)
+			}
+		}
+	}
+	if newPath == "" {
+		newPath = "/"
+	}
+	return newPath, nil
 }
