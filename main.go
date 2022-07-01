@@ -49,12 +49,12 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 func ltsVersion(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	versionSpecString, err := json.Marshal(version.VersionSpec{
-		Version:       "v1.4.0",
+		Version:       "v1.4.1",
 		Channel:       "stable",
-		Description:   "Added the ability to check for updates. This version does not include the ability to fetch and install updates.",
-		ReleasedAt:    time.Unix(1656126000, 0),
+		Description:   "Clears the scroll-back history when clearing the screen.",
+		ReleasedAt:    time.Unix(1656651124, 0),
 		CanAutoUpdate: false,
-		URL:           "https://github.com/yyjlincoln-unsw/lts/releases/tag/v1.4.0",
+		URL:           "https://github.com/yyjlincoln-unsw/lts/releases/tag/v1.4.1",
 	})
 	if err != nil {
 		http.Error(w, "Internal Server Error: Could not decode VersionSpec.", http.StatusInternalServerError)
